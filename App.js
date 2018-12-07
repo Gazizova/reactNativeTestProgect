@@ -1,29 +1,74 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View, TextInput, ScrollView } from 'react-native';
+// import { runInThisContext } from 'vm';
 // import { relative } from 'path';
+import ImageCard from './src/components/ImageCard';
+import { h, w } from './constants';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
   android: 'Double tap R on your keyboard to reload,\n' + 'Shake or press menu button for dev menu'
 });
 
+const url =
+  'https://raw.githubusercontent.com/react-native-village/react-native-init/master/stargate/stargate.json';
+
 export default class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      title: 'StarGate',
+      value: '',
+      data: [],
+      image: []
+    };
+    console.log('constructor');
+  }
+
+  componentDidMount = async () => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      this.setState({ data });
+      console.log(data);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   render() {
+    console.log(w, h);
+    const { container, containerList, textInputStyle } = styles;
     return (
-      <View>
-        <View style={styles.container}>
+      <ScrollView>
+        <View style={container}>
           <Text style={styles.textStyle}>Welcome!</Text>
-          {/* <Text style={styles.instructions}>To get started, edit App.js</Text>
-            <Text style={styles.instructions}>{instructions}</Text> */}
         </View>
-        <View style={styles.box1} />
-        <View style={styles.box2} />
-      </View>
+        <TextInput
+          style={textInputStyle}
+          placeholder="Input something"
+          onChangeText={value => this.setState({ value })}
+        />
+        <View style={containerList}>
+          {this.state.data.map(i => (
+            <ImageCard key={i.id} text={i.name} uri={i.image} />
+          ))}
+        </View>
+      </ScrollView>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  containerList: {
+    marginTop: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    flexShrink: 2,
+    justifyContent: 'space-around',
+    marginBottom: 100
+  },
   box1: {
     marginTop: 20,
     height: 50,
@@ -38,7 +83,6 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     justifyContent: 'center',
-    // flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#30d0fe',
     height: 116,
@@ -52,7 +96,11 @@ const styles = StyleSheet.create({
   textStyle: {
     fontSize: 28,
     textAlign: 'center',
-    // margin: 10,
     color: 'white'
+  },
+  textInputStyle: {
+    borderColor: 'gray',
+    borderWidth: 1,
+    height: 40
   }
 });
